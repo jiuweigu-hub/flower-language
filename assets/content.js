@@ -56,18 +56,44 @@ function renderFormattedBody(value) {
   return fragment;
 }
 
-function entryKey(entry) {
-  if (entry.type === "imprint") return `${entry.type}:${entry.body || ""}`;
-  return `${entry.type}:${entry.title || ""}`;
+function fileNameFromUrl(url) {
+  try {
+    return new URL(url, location.href).pathname.split("/").pop() || "";
+  } catch {
+    return "";
+  }
 }
 
-function staticEntryKey(node, type) {
+function entryKeys(entry) {
+  const keys = new Set();
+  const legacyKey = entry.metadata?.legacy_key;
+  if (legacyKey) keys.add(`${entry.type}:legacy:${legacyKey}`);
+  if (entry.type === "imprint") {
+    keys.add(`${entry.type}:body:${entry.body || ""}`);
+  } else {
+    keys.add(`${entry.type}:title:${entry.title || ""}`);
+  }
+  entry.image_urls?.forEach((url) => {
+    const fileName = fileNameFromUrl(url);
+    if (fileName) keys.add(`${entry.type}:image:${fileName}`);
+  });
+  return keys;
+}
+
+function staticEntryKeys(node, type) {
+  const keys = new Set();
   if (type === "imprint") {
     const caption = node.querySelector(".caption")?.textContent?.trim() || "";
-    return `${type}:${caption}`;
+    keys.add(`${type}:body:${caption}`);
+  } else {
+    const title = node.querySelector("h2")?.textContent?.trim() || "";
+    keys.add(`${type}:title:${title}`);
   }
-  const title = node.querySelector("h2")?.textContent?.trim() || "";
-  return `${type}:${title}`;
+  node.querySelectorAll("img").forEach((image) => {
+    const fileName = fileNameFromUrl(image.getAttribute("src"));
+    if (fileName) keys.add(`${type}:image:${fileName}`);
+  });
+  return keys;
 }
 
 function detailUrl(entry) {
@@ -220,9 +246,9 @@ async function loadList(container) {
     .order("published_at", { ascending: false });
 
   if (error || !data?.length) return;
-  const cloudKeys = new Set(data.map(entryKey));
+  const cloudKeys = new Set(data.flatMap((entry) => [...entryKeys(entry)]));
   const remainingStaticEntries = staticEntries.filter(
-    (entry) => !cloudKeys.has(staticEntryKey(entry, type))
+    (entry) => ![...staticEntryKeys(entry, type)].some((key) => cloudKeys.has(key))
   );
 
   if (type === "thought") {

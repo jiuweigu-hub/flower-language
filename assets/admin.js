@@ -276,6 +276,39 @@ function entryExcerpt(entry) {
   return entry.excerpt || entry.body || "没有正文。";
 }
 
+function fileNameFromUrl(url = "") {
+  try {
+    return new URL(url, location.href).pathname.split("/").pop() || "";
+  } catch {
+    return "";
+  }
+}
+
+function inferLegacyKey(entry) {
+  if (!entry) return "";
+  const imageNames = entry.image_urls?.map(fileNameFromUrl) || [];
+  const matchByImage = legacyEntries.find(
+    (legacy) =>
+      legacy.entry.type === entry.type &&
+      legacy.entry.image_urls?.some((url) => imageNames.includes(fileNameFromUrl(url)))
+  );
+  if (matchByImage) return matchByImage.key;
+  const matchByTitle = legacyEntries.find(
+    (legacy) =>
+      legacy.entry.type === entry.type &&
+      legacy.entry.title &&
+      legacy.entry.title === entry.title
+  );
+  if (matchByTitle) return matchByTitle.key;
+  const matchByBody = legacyEntries.find(
+    (legacy) =>
+      legacy.entry.type === entry.type &&
+      !legacy.entry.title &&
+      legacy.entry.body === entry.body
+  );
+  return matchByBody?.key || "";
+}
+
 function renderEntryRow(entry) {
   const row = document.createElement("article");
   row.className = "entry-admin-row";
@@ -344,6 +377,10 @@ async function migrateLegacyEntry(legacy, button) {
     .from("entries")
     .insert({
       ...legacy.entry,
+      metadata: {
+        ...legacy.entry.metadata,
+        legacy_key: legacy.key,
+      },
       author_id: currentUser.id,
       slug: makeSlug(legacy.entry.title || legacy.entry.body.slice(0, 24)),
       status: "public",
@@ -367,6 +404,15 @@ async function migrateLegacyEntry(legacy, button) {
 function legacyEntryExists(legacy, entries) {
   return entries.some((entry) => {
     if (entry.type !== legacy.entry.type) return false;
+    if (entry.metadata?.legacy_key === legacy.key) return true;
+    const imageNames = entry.image_urls?.map(fileNameFromUrl) || [];
+    if (
+      legacy.entry.image_urls?.some((url) =>
+        imageNames.includes(fileNameFromUrl(url))
+      )
+    ) {
+      return true;
+    }
     if (legacy.entry.title) return entry.title?.trim() === legacy.entry.title;
     return entry.body?.trim() === legacy.entry.body;
   });
@@ -457,6 +503,7 @@ async function createEntryFromForm(formData, previous = null) {
         translator: value(formData, "book_translator"),
         read_date: value(formData, "book_date"),
         rating: value(formData, "book_rating"),
+        legacy_key: previous?.metadata?.legacy_key || inferLegacyKey(previous),
       },
       allow_comments: false,
     };
@@ -471,7 +518,10 @@ async function createEntryFromForm(formData, previous = null) {
       excerpt: null,
       cover_url: null,
       image_urls: [],
-      metadata: {},
+      metadata: {
+        ...previous?.metadata,
+        legacy_key: previous?.metadata?.legacy_key || inferLegacyKey(previous),
+      },
       allow_comments: formData.get("thought_comments") === "on",
     };
   }
@@ -487,7 +537,11 @@ async function createEntryFromForm(formData, previous = null) {
       excerpt: null,
       cover_url: null,
       image_urls: imageUrls.length ? imageUrls : previous?.image_urls || [],
-      metadata: { date: value(formData, "love_date") },
+      metadata: {
+        ...previous?.metadata,
+        date: value(formData, "love_date"),
+        legacy_key: previous?.metadata?.legacy_key || inferLegacyKey(previous),
+      },
       allow_comments: false,
     };
   }
@@ -505,7 +559,11 @@ async function createEntryFromForm(formData, previous = null) {
       excerpt: null,
       cover_url: null,
       image_urls: imageUrls.length ? imageUrls : previous?.image_urls || [],
-      metadata: { kind: value(formData, "imprint_kind") },
+      metadata: {
+        ...previous?.metadata,
+        kind: value(formData, "imprint_kind"),
+        legacy_key: previous?.metadata?.legacy_key || inferLegacyKey(previous),
+      },
       allow_comments: false,
     };
   }
