@@ -29,23 +29,95 @@ const typeLabels = {
   imprint: "印记",
 };
 
-const legacyStoner = {
-  type: "book",
-  title: "史托纳",
-  subtitle: "我无趣克制内敛却也坚持的一生",
-  body:
-    "只是一个对这个世界毫无还手之力的人，他没有被这个世界的任何人记得。但他仍然有自己的坚持、有自己所爱、有自己的对抗，即使这些在这个世界里逐渐趋于麻木。\n\n我们要记得，不是所有的叙事都轰轰烈烈，悲壮宏大，有许许多多在角落不起眼或说不必提起的人，仍在度过他的一生。",
-  excerpt: "无需试图改变这个世界的无可救药。",
-  cover_url: null,
-  image_urls: [],
-  metadata: {
-    author: "[美] 约翰·威廉斯",
-    translator: "马耀民",
-    read_date: "2026-06-06",
-    rating: "★★★★★",
+const legacyEntries = [
+  {
+    key: "stoner",
+    label: "史托纳",
+    entry: {
+      type: "book",
+      title: "史托纳",
+      subtitle: "我无趣克制内敛却也坚持的一生",
+      body:
+        "只是一个对这个世界毫无还手之力的人，他没有被这个世界的任何人记得。但他仍然有自己的坚持、有自己所爱、有自己的对抗，即使这些在这个世界里逐渐趋于麻木。\n\n我们要记得，不是所有的叙事都轰轰烈烈，悲壮宏大，有许许多多在角落不起眼或说不必提起的人，仍在度过他的一生。",
+      excerpt: "无需试图改变这个世界的无可救药。",
+      cover_url: null,
+      image_urls: [],
+      metadata: {
+        author: "[美] 约翰·威廉斯",
+        translator: "马耀民",
+        read_date: "2026-06-06",
+        rating: "★★★★★",
+      },
+      allow_comments: false,
+    },
   },
-  allow_comments: false,
-};
+  {
+    key: "graduation-season",
+    label: "毕业季",
+    entry: {
+      type: "thought",
+      title: "毕业季",
+      subtitle: null,
+      body: "这是一个空气中弥漫着清新味道的季节，谁曾想到这是一个毕业季。",
+      excerpt: null,
+      cover_url: null,
+      image_urls: [],
+      metadata: {},
+      allow_comments: true,
+    },
+  },
+  {
+    key: "penguin-doll",
+    label: "企鹅玩偶",
+    entry: {
+      type: "love",
+      title: "企鹅玩偶",
+      subtitle: null,
+      body: "腾讯实习第一天收到的 baby 企鹅。",
+      excerpt: null,
+      cover_url: null,
+      image_urls: [
+        "https://jiuweigu-hub.github.io/flower-language/assets/penguin-doll.jpg",
+      ],
+      metadata: { date: "2025 年 1 月" },
+      allow_comments: false,
+    },
+  },
+  {
+    key: "love-meal",
+    label: "一顿满足的饭",
+    entry: {
+      type: "imprint",
+      title: null,
+      subtitle: null,
+      body: "和他一起吃了一顿满足的饭。",
+      excerpt: null,
+      cover_url: null,
+      image_urls: [
+        "https://jiuweigu-hub.github.io/flower-language/assets/love.jpg",
+      ],
+      metadata: { kind: "爱" },
+      allow_comments: false,
+    },
+  },
+  {
+    key: "quiet-afternoon",
+    label: "这样的下午",
+    entry: {
+      type: "imprint",
+      title: null,
+      subtitle: null,
+      body: "这样的下午或许所剩不多。",
+      excerpt: null,
+      cover_url: null,
+      image_urls: [
+        "https://jiuweigu-hub.github.io/flower-language/assets/imprint.jpg",
+      ],
+      metadata: { kind: "时光" },
+      allow_comments: false,
+    },
+  },
+];
 
 let currentUser = null;
 let editingEntry = null;
@@ -156,16 +228,16 @@ function renderEntryRow(entry) {
   return row;
 }
 
-function renderLegacyStonerRow() {
+function renderLegacyEntryRow(legacy) {
   const row = document.createElement("article");
   row.className = "entry-admin-row entry-admin-row-legacy";
 
   const info = document.createElement("div");
   const meta = document.createElement("span");
   meta.className = "entry-admin-meta";
-  meta.textContent = "书角 · 初版固定内容";
+  meta.textContent = `${typeLabels[legacy.entry.type]} · 初版固定内容`;
   const title = document.createElement("h3");
-  title.textContent = "史托纳";
+  title.textContent = legacy.label;
   const excerpt = document.createElement("p");
   excerpt.textContent = "先转为可编辑内容，之后就能随时修改或删除。";
   info.append(meta, title, excerpt);
@@ -175,25 +247,25 @@ function renderLegacyStonerRow() {
   const migrate = document.createElement("button");
   migrate.type = "button";
   migrate.textContent = "转为可编辑";
-  migrate.addEventListener("click", () => migrateLegacyStoner(migrate));
+  migrate.addEventListener("click", () => migrateLegacyEntry(legacy, migrate));
   actions.append(migrate);
 
   row.append(info, actions);
   return row;
 }
 
-async function migrateLegacyStoner(button) {
+async function migrateLegacyEntry(legacy, button) {
   button.disabled = true;
   button.textContent = "正在转移……";
-  note.textContent = "正在把《史托纳》放进可编辑的内容库。";
+  note.textContent = `正在把「${legacy.label}」放进可编辑的内容库。`;
 
   const now = new Date().toISOString();
   const { data, error } = await supabase
     .from("entries")
     .insert({
-      ...legacyStoner,
+      ...legacy.entry,
       author_id: currentUser.id,
-      slug: makeSlug(legacyStoner.title),
+      slug: makeSlug(legacy.entry.title || legacy.entry.body.slice(0, 24)),
       status: "public",
       published_at: now,
     })
@@ -207,9 +279,17 @@ async function migrateLegacyStoner(button) {
     return;
   }
 
-  note.textContent = "《史托纳》已经可以编辑，表单中已装入原来的内容。";
+  note.textContent = `「${legacy.label}」已经可以编辑，表单中已装入原来的内容。`;
   await loadEntries();
   startEdit(data);
+}
+
+function legacyEntryExists(legacy, entries) {
+  return entries.some((entry) => {
+    if (entry.type !== legacy.entry.type) return false;
+    if (legacy.entry.title) return entry.title?.trim() === legacy.entry.title;
+    return entry.body?.trim() === legacy.entry.body;
+  });
 }
 
 async function loadEntries() {
@@ -226,13 +306,10 @@ async function loadEntries() {
     return;
   }
 
-  const hasStoner = data?.some(
-    (entry) =>
-      entry.type === "book" &&
-      ["史托纳", "史托納"].includes(entry.title?.trim())
-  );
   const rows = data?.map(renderEntryRow) || [];
-  if (!hasStoner) rows.push(renderLegacyStonerRow());
+  legacyEntries
+    .filter((legacy) => !legacyEntryExists(legacy, data || []))
+    .forEach((legacy) => rows.push(renderLegacyEntryRow(legacy)));
   entryList.replaceChildren(...rows);
 }
 

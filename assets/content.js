@@ -18,6 +18,20 @@ function element(tag, className, content) {
   return node;
 }
 
+function entryKey(entry) {
+  if (entry.type === "imprint") return `${entry.type}:${entry.body || ""}`;
+  return `${entry.type}:${entry.title || ""}`;
+}
+
+function staticEntryKey(node, type) {
+  if (type === "imprint") {
+    const caption = node.querySelector(".caption")?.textContent?.trim() || "";
+    return `${type}:${caption}`;
+  }
+  const title = node.querySelector("h2")?.textContent?.trim() || "";
+  return `${type}:${title}`;
+}
+
 function detailUrl(entry) {
   return `../entry.html?slug=${encodeURIComponent(entry.slug)}`;
 }
@@ -168,8 +182,16 @@ async function loadList(container) {
     .order("published_at", { ascending: false });
 
   if (error || !data?.length) return;
+  const cloudKeys = new Set(data.map(entryKey));
+  const remainingStaticEntries = staticEntries.filter(
+    (entry) => !cloudKeys.has(staticEntryKey(entry, type))
+  );
+
   if (type === "thought") {
-    paginateThoughts(container, [...data.map(renderThought), ...staticEntries]);
+    paginateThoughts(container, [
+      ...data.map(renderThought),
+      ...remainingStaticEntries,
+    ]);
     return;
   }
 
@@ -177,7 +199,7 @@ async function loadList(container) {
   data.forEach((entry) => {
     container.append(type === "book" ? renderBook(entry) : renderMedia(entry));
   });
-  staticEntries.forEach((entry) => container.append(entry));
+  remainingStaticEntries.forEach((entry) => container.append(entry));
 }
 
 function renderImages(entry, wrapper) {
