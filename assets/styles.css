@@ -695,6 +695,29 @@ textarea {
   padding-bottom: 34px;
 }
 
+.format-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin: 8px 0 10px;
+}
+
+.format-toolbar button {
+  padding: 5px 10px;
+  border: 1px solid rgba(91, 71, 80, 0.13);
+  border-radius: 999px;
+  color: rgba(81, 73, 77, 0.82);
+  background: rgba(255, 255, 255, 0.52);
+  cursor: pointer;
+  font-family: var(--sans);
+  font-size: 11px;
+}
+
+.format-toolbar button:hover {
+  background: rgba(255, 255, 255, 0.78);
+  transform: translateY(-1px);
+}
+
 .char-count {
   position: absolute;
   right: 12px;
@@ -1045,6 +1068,31 @@ textarea {
 
 .article-body p {
   margin: 0 0 28px;
+}
+
+.cloud-entry .article-body p {
+  text-indent: 2em;
+}
+
+.article-body strong {
+  font-weight: 600;
+}
+
+.article-body em {
+  font-style: italic;
+}
+
+.article-subhead {
+  margin: 44px 0 18px;
+  font-size: clamp(22px, 4vw, 30px);
+  font-weight: 400;
+  line-height: 1.65;
+}
+
+.article-small {
+  color: var(--ink-soft);
+  font-size: 0.86em;
+  line-height: 2;
 }
 
 .book-detail {

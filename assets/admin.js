@@ -181,6 +181,86 @@ function installCounters() {
   });
 }
 
+function selectedLineRange(textarea) {
+  const start = textarea.selectionStart;
+  const end = textarea.selectionEnd;
+  const lineStart = textarea.value.lastIndexOf("\n", start - 1) + 1;
+  const nextLine = textarea.value.indexOf("\n", end);
+  return {
+    start: lineStart,
+    end: nextLine === -1 ? textarea.value.length : nextLine,
+  };
+}
+
+function replaceSelection(textarea, nextValue, selectionStart, selectionEnd) {
+  textarea.value = nextValue;
+  textarea.focus();
+  textarea.setSelectionRange(selectionStart, selectionEnd);
+  textarea.dispatchEvent(new Event("input", { bubbles: true }));
+}
+
+function wrapSelection(textarea, before, after = before) {
+  const start = textarea.selectionStart;
+  const end = textarea.selectionEnd;
+  const selected = textarea.value.slice(start, end) || "文字";
+  replaceSelection(
+    textarea,
+    `${textarea.value.slice(0, start)}${before}${selected}${after}${textarea.value.slice(end)}`,
+    start + before.length,
+    start + before.length + selected.length
+  );
+}
+
+function formatLine(textarea, prefix) {
+  const range = selectedLineRange(textarea);
+  const line = textarea.value.slice(range.start, range.end);
+  const cleaned = line.replace(/^(#{2,3}|~)\s*/, "");
+  const nextLine = `${prefix}${cleaned || "文字"}`;
+  replaceSelection(
+    textarea,
+    `${textarea.value.slice(0, range.start)}${nextLine}${textarea.value.slice(range.end)}`,
+    range.start + prefix.length,
+    range.start + nextLine.length
+  );
+}
+
+function insertParagraphBreak(textarea) {
+  const start = textarea.selectionStart;
+  const end = textarea.selectionEnd;
+  const insert = "\n\n　　";
+  replaceSelection(
+    textarea,
+    `${textarea.value.slice(0, start)}${insert}${textarea.value.slice(end)}`,
+    start + insert.length,
+    start + insert.length
+  );
+}
+
+function installFormatToolbars() {
+  editor.querySelectorAll("textarea[data-count-text]").forEach((textarea) => {
+    const toolbar = document.createElement("div");
+    toolbar.className = "format-toolbar";
+    toolbar.innerHTML = `
+      <button type="button" data-format="bold">加粗</button>
+      <button type="button" data-format="italic">斜体</button>
+      <button type="button" data-format="heading">小标题</button>
+      <button type="button" data-format="small">小字</button>
+      <button type="button" data-format="paragraph">空一段</button>
+    `;
+    textarea.before(toolbar);
+    toolbar.addEventListener("click", (event) => {
+      const button = event.target.closest("[data-format]");
+      if (!button) return;
+      const action = button.dataset.format;
+      if (action === "bold") wrapSelection(textarea, "**");
+      if (action === "italic") wrapSelection(textarea, "*");
+      if (action === "heading") formatLine(textarea, "## ");
+      if (action === "small") formatLine(textarea, "~ ");
+      if (action === "paragraph") insertParagraphBreak(textarea);
+    });
+  });
+}
+
 function dateText(entry) {
   return new Date(entry.published_at || entry.updated_at || entry.created_at)
     .toLocaleDateString("zh-CN");
@@ -606,4 +686,5 @@ editor.addEventListener("submit", async (event) => {
 });
 
 installCounters();
+installFormatToolbars();
 initialize();

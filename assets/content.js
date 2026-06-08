@@ -18,6 +18,44 @@ function element(tag, className, content) {
   return node;
 }
 
+function escapeHtml(value) {
+  return String(value || "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
+function renderInlineFormat(value) {
+  return escapeHtml(value)
+    .replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>")
+    .replace(/(^|[^*])\*([^*]+)\*/g, "$1<em>$2</em>");
+}
+
+function renderFormattedBody(value) {
+  const fragment = document.createDocumentFragment();
+  String(value || "")
+    .split(/\n{2,}/)
+    .map((block) => block.trim())
+    .filter(Boolean)
+    .forEach((block) => {
+      const lines = block.split(/\n/);
+      const firstLine = lines[0].trim();
+      const marker = firstLine.match(/^(##|~)\s+(.+)/);
+      const node = document.createElement(marker?.[1] === "##" ? "h3" : "p");
+      if (marker?.[1] === "##") {
+        node.className = "article-subhead";
+        lines[0] = marker[2];
+      } else if (marker?.[1] === "~") {
+        node.className = "article-small";
+        lines[0] = marker[2];
+      }
+      node.innerHTML = lines.map(renderInlineFormat).join("<br>");
+      fragment.append(node);
+    });
+  return fragment;
+}
+
 function entryKey(entry) {
   if (entry.type === "imprint") return `${entry.type}:${entry.body || ""}`;
   return `${entry.type}:${entry.title || ""}`;
@@ -297,9 +335,7 @@ async function loadDetail(container) {
 
   renderImages(entry, article);
   const body = element("div", "article-body");
-  entry.body.split(/\n+/).filter(Boolean).forEach((paragraph) => {
-    body.append(element("p", "", paragraph));
-  });
+  body.append(renderFormattedBody(entry.body));
   article.append(body);
 
   const flower = element("button", "flower-button");
