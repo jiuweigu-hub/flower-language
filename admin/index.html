@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="robots" content="noindex">
+    <title>内容管理 · 花之语</title>
+    <link rel="stylesheet" href="../assets/styles.css?v=objects-6">
+  </head>
+  <body class="admin-page">
+    <header class="site-header shell">
+      <a class="brand" href="../index.html"><img class="brand-flower" src="../assets/flower-mark.svg" alt="">花之语</a>
+      <span class="admin-label">内容管理</span>
+    </header>
+
+    <main class="admin-shell">
+      <section class="admin-intro">
+        <p class="eyebrow">Your private writing room</p>
+        <h1>今天想留下些什么？</h1>
+        <p>选择一种内容，写完后预览，再决定保存为草稿、私密或公开。</p>
+      </section>
+
+      <section class="admin-setup" data-setup hidden>
+        <img src="../assets/flower-mark.svg" alt="">
+        <h2>还差一次云端连接</h2>
+        <p>网页的发布功能已经写好。创建 Supabase 项目并填入连接信息后，这里就会变成你的登录入口。</p>
+      </section>
+
+      <section class="login-card" data-login hidden>
+        <div>
+          <p class="eyebrow">Private entrance</p>
+          <h2>温柔，请登录</h2>
+        </div>
+        <form data-login-form>
+          <label class="field">邮箱<input name="email" type="email" autocomplete="username" required></label>
+          <label class="field">密码<input name="password" type="password" autocomplete="current-password" required></label>
+          <button class="publish-button" type="submit">进入我的小空间</button>
+          <p class="admin-note" data-login-note></p>
+        </form>
+      </section>
+
+      <div data-workspace hidden>
+      <div class="admin-session">
+        <span data-user-email></span>
+        <button type="button" data-logout>退出登录</button>
+      </div>
+
+      <section class="content-picker" aria-label="选择内容类型">
+        <button class="content-type is-active" type="button" data-content-type="book">添加书籍</button>
+        <button class="content-type" type="button" data-content-type="thought">写随想</button>
+        <button class="content-type" type="button" data-content-type="love">收藏一件物</button>
+        <button class="content-type" type="button" data-content-type="imprint">留下一道印记</button>
+      </section>
+
+      <form class="editor" data-editor>
+        <div class="editor-panel">
+          <div class="editor-section is-visible" data-section="book">
+            <h2>一本读完的书</h2>
+            <div class="editor-grid">
+              <label class="field">书名<input name="book_title" placeholder="例如：史托納"></label>
+              <label class="field">作者<input name="book_author"></label>
+              <label class="field">译者<input name="book_translator"></label>
+              <label class="field">阅读日期<input name="book_date" type="date"></label>
+              <label class="field field-wide">一句话推荐<input name="book_recommendation"></label>
+              <label class="field">喜爱程度
+                <select name="book_rating">
+                  <option>★★★★★</option>
+                  <option>★★★★</option>
+                  <option>★★★</option>
+                  <option>★★</option>
+                  <option>★</option>
+                </select>
+              </label>
+              <label class="field">上传封面<input name="book_cover" type="file" accept="image/*"></label>
+              <label class="field field-wide">详情页题目<input name="book_heading"></label>
+              <label class="field field-wide">正文<textarea name="book_body" rows="12"></textarea></label>
+            </div>
+          </div>
+
+          <div class="editor-section" data-section="thought">
+            <h2>一篇随想</h2>
+            <label class="field">标题（可不填）<input name="thought_title"></label>
+            <label class="field">正文<textarea name="thought_body" rows="15"></textarea></label>
+            <label class="switch-row"><input name="thought_comments" type="checkbox" checked> 开放评论</label>
+          </div>
+
+          <div class="editor-section" data-section="love">
+            <h2>一件有故事的小物</h2>
+            <label class="field">物的名字<input name="love_title" placeholder="例如：企鹅玩偶"></label>
+            <label class="field">日期<input name="love_date" placeholder="例如：2025 年 1 月"></label>
+            <label class="field">照片（可不选）<input name="love_images" type="file" accept="image/*" multiple></label>
+            <label class="field">我的文字<textarea name="love_body" rows="10"></textarea></label>
+          </div>
+
+          <div class="editor-section" data-section="imprint">
+            <h2>一段生活印记</h2>
+            <label class="field">印记类型
+              <select name="imprint_kind">
+                <option>时光</option>
+                <option>爱</option>
+              </select>
+            </label>
+            <label class="field">照片<input name="imprint_images" type="file" accept="image/*" multiple></label>
+            <label class="field">几句话<textarea name="imprint_body" rows="8"></textarea></label>
+          </div>
+        </div>
+
+        <aside class="publish-panel">
+          <h2>发布设置</h2>
+          <label class="field">内容状态
+            <select name="visibility">
+              <option value="draft">保存为草稿</option>
+              <option value="private">设为私密</option>
+              <option value="public">公开发布</option>
+            </select>
+          </label>
+          <button class="preview-button" type="button" data-preview>预览内容</button>
+          <button class="publish-button" type="submit">确认</button>
+          <p class="admin-note" data-admin-note>写完后可以保存为草稿、私密或公开。</p>
+        </aside>
+      </form>
+      </div>
+    </main>
+    <script src="../assets/site.js?v=objects-6"></script>
+    <script type="module" src="../assets/admin.js?v=objects-6"></script>
+  </body>
+</html>
