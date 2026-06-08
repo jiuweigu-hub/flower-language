@@ -2378,12 +2378,14 @@ body {
 }
 
 .lightbox-caption {
-  display: -webkit-box;
+  display: block;
   width: 100%;
   max-width: 100%;
   max-height: calc(13px * 1.9 * 4);
   margin: 13px auto 0;
-  overflow: hidden;
+  padding: 0 6px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
   color: #665a60;
   font-size: 13px;
   line-height: 1.9;
@@ -2391,8 +2393,16 @@ body {
   overflow-wrap: anywhere;
   word-break: break-word;
   white-space: pre-line;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 4;
+  scrollbar-width: thin;
+}
+
+.lightbox-caption::-webkit-scrollbar {
+  width: 4px;
+}
+
+.lightbox-caption::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: rgba(102, 90, 96, 0.26);
 }
 
 .lightbox-close {
