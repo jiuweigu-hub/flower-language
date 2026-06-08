@@ -48,6 +48,22 @@ portalLinks.forEach((portal) => {
   portal.addEventListener("blur", hideColor);
 });
 
+const bloomTitle = document.querySelector(".bloom-title");
+
+function brushBloomTitle() {
+  if (!bloomTitle || window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    return;
+  }
+
+  bloomTitle.classList.add("is-wind");
+  window.setTimeout(() => bloomTitle.classList.remove("is-wind"), 1500);
+}
+
+if (bloomTitle) {
+  window.setTimeout(brushBloomTitle, 850);
+  window.setInterval(brushBloomTitle, 9000);
+}
+
 const brandMarks = document.querySelectorAll(".brand");
 let petalRainActive = false;
 
