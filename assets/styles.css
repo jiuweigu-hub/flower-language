@@ -214,6 +214,7 @@ textarea {
   gap: clamp(8px, 1.5vw, 18px);
   align-items: center;
   padding-left: 0.08em;
+  color: rgba(105, 87, 94, 0.72);
 }
 
 .bloom-word {
@@ -235,18 +236,74 @@ textarea {
 }
 
 .bloom-flower-word {
+  width: 0.92em;
+  height: 1.08em;
   padding-right: 0.03em;
   transform-origin: 50% 56%;
 }
 
+.flower-text-base {
+  opacity: 0;
+}
+
+.flower-text-custom {
+  position: absolute;
+  inset: 0.08em 0.08em 0.02em 0;
+}
+
+.flower-stroke {
+  position: absolute;
+  display: block;
+  border-radius: 999px;
+  background: rgba(105, 87, 94, 0.6);
+  box-shadow: 0 10px 22px rgba(126, 92, 104, 0.035);
+}
+
+.flower-stroke-left {
+  top: 0.29em;
+  left: 0.2em;
+  width: 0.08em;
+  height: 0.5em;
+  transform: rotate(3deg);
+}
+
+.flower-stroke-top {
+  top: 0.3em;
+  left: 0.16em;
+  width: 0.56em;
+  height: 0.055em;
+}
+
+.flower-stroke-mid {
+  top: 0.53em;
+  left: 0.12em;
+  width: 0.54em;
+  height: 0.052em;
+}
+
+.flower-stroke-bottom {
+  top: 0.76em;
+  left: 0.07em;
+  width: 0.64em;
+  height: 0.055em;
+}
+
+.flower-stroke-right {
+  top: 0.33em;
+  left: 0.54em;
+  width: 0.075em;
+  height: 0.49em;
+  transform: rotate(-5deg);
+}
+
 .title-flower {
   position: absolute;
-  top: 0.08em;
-  right: -0.05em;
-  width: 0.24em;
-  height: 0.24em;
+  top: 0.1em;
+  left: 0.03em;
+  width: 0.3em;
+  height: 0.3em;
   opacity: 0.9;
-  transform: rotate(-8deg) scale(0.9);
+  transform: rotate(-25deg) scale(0.86);
   transform-origin: center;
   transition: transform 950ms cubic-bezier(.2,.7,.2,1), opacity 700ms ease;
 }
@@ -258,7 +315,7 @@ textarea {
   width: 52%;
   height: 25%;
   border-radius: 999px 999px 999px 40%;
-  background: linear-gradient(90deg, #fff7f4, #eeb9c4);
+  background: linear-gradient(90deg, #fffaf7, #e8aeba);
   box-shadow: inset 0 0 0 1px rgba(183, 130, 142, 0.08);
   transform-origin: 0 50%;
 }
@@ -276,7 +333,7 @@ textarea {
   width: 0.06em;
   height: 0.06em;
   border-radius: 50%;
-  background: #c98f9c;
+  background: #bd8490;
   content: "";
 }
 
@@ -306,7 +363,7 @@ textarea {
 .bloom-title:hover .bloom-flower-word,
 .bloom-title.is-wind .bloom-flower-word {
   filter: blur(0.12px);
-  opacity: 0.72;
+  opacity: 0.78;
   transform: translateX(-0.03em) rotate(-1.6deg);
 }
 
@@ -322,8 +379,8 @@ textarea {
 
 .bloom-title:hover .title-flower,
 .bloom-title.is-wind .title-flower {
-  opacity: 0.55;
-  transform: translate(0.18em, -0.05em) rotate(20deg) scale(1.06);
+  opacity: 0.6;
+  transform: translate(0.18em, -0.08em) rotate(9deg) scale(1);
 }
 
 .bloom-title:hover .wind-petals i,
@@ -369,12 +426,12 @@ textarea {
 
 .home-flower-cluster {
   position: absolute;
-  right: min(-60px, -2vw);
-  bottom: 10px;
+  right: min(-35px, -1vw);
+  bottom: 34px;
   z-index: 0;
-  width: min(47vw, 520px);
-  min-width: 330px;
-  opacity: 0.52;
+  width: min(38vw, 430px);
+  min-width: 270px;
+  opacity: 0.46;
   pointer-events: none;
   transform: rotate(-2deg);
   filter: saturate(0.88) contrast(0.96);
@@ -384,13 +441,13 @@ textarea {
 @keyframes cluster-breathe {
   0%,
   100% {
-    opacity: 0.46;
+    opacity: 0.4;
     transform: translate3d(0, 0, 0) rotate(-2deg);
   }
 
   50% {
-    opacity: 0.62;
-    transform: translate3d(-8px, -4px, 0) rotate(-1.2deg);
+    opacity: 0.53;
+    transform: translate3d(-5px, -3px, 0) rotate(-1.3deg);
   }
 }
 
@@ -1799,11 +1856,11 @@ body {
   }
 
   .home-flower-cluster {
-    right: -95px;
-    bottom: 34px;
-    width: 360px;
+    right: -88px;
+    bottom: 52px;
+    width: 300px;
     min-width: 0;
-    opacity: 0.34;
+    opacity: 0.26;
   }
 
   .book-grid {
