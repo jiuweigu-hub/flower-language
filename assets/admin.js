@@ -29,6 +29,24 @@ const typeLabels = {
   imprint: "印记",
 };
 
+const legacyStoner = {
+  type: "book",
+  title: "史托纳",
+  subtitle: "我无趣克制内敛却也坚持的一生",
+  body:
+    "只是一个对这个世界毫无还手之力的人，他没有被这个世界的任何人记得。但他仍然有自己的坚持、有自己所爱、有自己的对抗，即使这些在这个世界里逐渐趋于麻木。\n\n我们要记得，不是所有的叙事都轰轰烈烈，悲壮宏大，有许许多多在角落不起眼或说不必提起的人，仍在度过他的一生。",
+  excerpt: "无需试图改变这个世界的无可救药。",
+  cover_url: null,
+  image_urls: [],
+  metadata: {
+    author: "[美] 约翰·威廉斯",
+    translator: "马耀民",
+    read_date: "2026-06-06",
+    rating: "★★★★★",
+  },
+  allow_comments: false,
+};
+
 let currentUser = null;
 let editingEntry = null;
 
@@ -138,6 +156,62 @@ function renderEntryRow(entry) {
   return row;
 }
 
+function renderLegacyStonerRow() {
+  const row = document.createElement("article");
+  row.className = "entry-admin-row entry-admin-row-legacy";
+
+  const info = document.createElement("div");
+  const meta = document.createElement("span");
+  meta.className = "entry-admin-meta";
+  meta.textContent = "书角 · 初版固定内容";
+  const title = document.createElement("h3");
+  title.textContent = "史托纳";
+  const excerpt = document.createElement("p");
+  excerpt.textContent = "先转为可编辑内容，之后就能随时修改或删除。";
+  info.append(meta, title, excerpt);
+
+  const actions = document.createElement("div");
+  actions.className = "entry-admin-actions";
+  const migrate = document.createElement("button");
+  migrate.type = "button";
+  migrate.textContent = "转为可编辑";
+  migrate.addEventListener("click", () => migrateLegacyStoner(migrate));
+  actions.append(migrate);
+
+  row.append(info, actions);
+  return row;
+}
+
+async function migrateLegacyStoner(button) {
+  button.disabled = true;
+  button.textContent = "正在转移……";
+  note.textContent = "正在把《史托纳》放进可编辑的内容库。";
+
+  const now = new Date().toISOString();
+  const { data, error } = await supabase
+    .from("entries")
+    .insert({
+      ...legacyStoner,
+      author_id: currentUser.id,
+      slug: makeSlug(legacyStoner.title),
+      status: "public",
+      published_at: now,
+    })
+    .select()
+    .single();
+
+  if (error) {
+    button.disabled = false;
+    button.textContent = "转为可编辑";
+    note.textContent = `转移没有成功：${error.message}`;
+    return;
+  }
+
+  note.textContent = "《史托纳》已经可以编辑，表单中已装入原来的内容。";
+  await loadEntries();
+  startEdit(data);
+}
+
 async function loadEntries() {
   if (!currentUser) return;
   entryList.innerHTML = '<p class="admin-note">正在整理已经发布的内容……</p>';
@@ -152,12 +226,14 @@ async function loadEntries() {
     return;
   }
 
-  if (!data?.length) {
-    entryList.innerHTML = '<p class="admin-note">还没有从后台发布过内容。</p>';
-    return;
-  }
-
-  entryList.replaceChildren(...data.map(renderEntryRow));
+  const hasStoner = data?.some(
+    (entry) =>
+      entry.type === "book" &&
+      ["史托纳", "史托納"].includes(entry.title?.trim())
+  );
+  const rows = data?.map(renderEntryRow) || [];
+  if (!hasStoner) rows.push(renderLegacyStonerRow());
+  entryList.replaceChildren(...rows);
 }
 
 async function exportEntries() {
