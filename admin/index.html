@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="robots" content="noindex">
     <title>内容管理 · 花之语</title>
-    <link rel="stylesheet" href="../assets/styles.css?v=objects-6">
+    <link rel="stylesheet" href="../assets/styles.css?v=rose-bg-1">
   </head>
   <body class="admin-page">
     <header class="site-header shell">
@@ -17,7 +17,7 @@
       <section class="admin-intro">
         <p class="eyebrow">Your private writing room</p>
         <h1>今天想留下些什么？</h1>
-        <p>选择一种内容，写完后预览，再决定保存为草稿、私密或公开。</p>
+        <p>选择一种内容，写完后直接公开发布；已发布的内容可以继续修改或删除。</p>
       </section>
 
       <section class="admin-setup" data-setup hidden>
@@ -73,14 +73,14 @@
               </label>
               <label class="field">上传封面<input name="book_cover" type="file" accept="image/*"></label>
               <label class="field field-wide">详情页题目<input name="book_heading"></label>
-              <label class="field field-wide">正文<textarea name="book_body" rows="12"></textarea></label>
+              <label class="field field-wide">正文<textarea name="book_body" rows="12" data-count-text></textarea></label>
             </div>
           </div>
 
           <div class="editor-section" data-section="thought">
             <h2>一篇随想</h2>
             <label class="field">标题（可不填）<input name="thought_title"></label>
-            <label class="field">正文<textarea name="thought_body" rows="15"></textarea></label>
+            <label class="field">正文<textarea name="thought_body" rows="15" data-count-text></textarea></label>
             <label class="switch-row"><input name="thought_comments" type="checkbox" checked> 开放评论</label>
           </div>
 
@@ -89,7 +89,7 @@
             <label class="field">物的名字<input name="love_title" placeholder="例如：企鹅玩偶"></label>
             <label class="field">日期<input name="love_date" placeholder="例如：2025 年 1 月"></label>
             <label class="field">照片（可不选）<input name="love_images" type="file" accept="image/*" multiple></label>
-            <label class="field">我的文字<textarea name="love_body" rows="10"></textarea></label>
+            <label class="field">我的文字<textarea name="love_body" rows="10" data-count-text></textarea></label>
           </div>
 
           <div class="editor-section" data-section="imprint">
@@ -101,27 +101,35 @@
               </select>
             </label>
             <label class="field">照片<input name="imprint_images" type="file" accept="image/*" multiple></label>
-            <label class="field">几句话<textarea name="imprint_body" rows="8"></textarea></label>
+            <label class="field">几句话<textarea name="imprint_body" rows="8" data-count-text></textarea></label>
           </div>
         </div>
 
         <aside class="publish-panel">
           <h2>发布设置</h2>
-          <label class="field">内容状态
-            <select name="visibility">
-              <option value="draft">保存为草稿</option>
-              <option value="private">设为私密</option>
-              <option value="public">公开发布</option>
-            </select>
-          </label>
+          <p class="publish-hint">现在先保持简单：所有确认保存的内容都会公开显示。</p>
+          <input name="visibility" type="hidden" value="public">
           <button class="preview-button" type="button" data-preview>预览内容</button>
-          <button class="publish-button" type="submit">确认</button>
-          <p class="admin-note" data-admin-note>写完后可以保存为草稿、私密或公开。</p>
+          <button class="publish-button" type="submit" data-submit-label>确认发布</button>
+          <button class="preview-button" type="button" data-cancel-edit hidden>取消修改</button>
+          <p class="admin-note" data-admin-note>写完后点击确认，会直接公开到花之语。</p>
         </aside>
       </form>
+      <section class="entry-manager" aria-label="已发布内容">
+        <div class="entry-manager-head">
+          <div>
+            <p class="eyebrow">Published room</p>
+            <h2>已发布内容</h2>
+          </div>
+          <button class="preview-button" type="button" data-refresh-entries>刷新列表</button>
+        </div>
+        <div class="entry-list-admin" data-entry-admin-list>
+          <p class="admin-note">登录后会显示你已经发布的内容。</p>
+        </div>
+      </section>
       </div>
     </main>
-    <script src="../assets/site.js?v=objects-6"></script>
-    <script type="module" src="../assets/admin.js?v=objects-6"></script>
+    <script src="../assets/site.js?v=rose-bg-1"></script>
+    <script type="module" src="../assets/admin.js?v=rose-bg-1"></script>
   </body>
 </html>
