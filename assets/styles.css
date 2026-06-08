@@ -2000,6 +2000,24 @@ body {
   margin-bottom: 70px;
 }
 
+.cloud-book-top-no-cover {
+  display: block;
+  width: min(580px, 100%);
+  margin-right: auto;
+  margin-left: auto;
+}
+
+.cloud-book-top-no-cover .cloud-entry-header h2 {
+  max-width: none;
+  font-size: clamp(24px, 4vw, 34px);
+  line-height: 1.6;
+}
+
+.cloud-book-top-no-cover .book-quote {
+  max-width: 520px;
+  line-height: 1.9;
+}
+
 .cloud-book-top > img {
   display: block;
   width: 140px;

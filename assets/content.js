@@ -240,6 +240,8 @@ async function loadDetail(container) {
       image.src = entry.cover_url;
       image.alt = `${entry.title}封面`;
       bookTop.append(image);
+    } else {
+      bookTop.classList.add("cloud-book-top-no-cover");
     }
     const info = element("div", "cloud-book-info");
     info.append(header);
