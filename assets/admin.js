@@ -19,6 +19,7 @@ const note = document.querySelector("[data-admin-note]");
 const submitLabel = document.querySelector("[data-submit-label]");
 const cancelEdit = document.querySelector("[data-cancel-edit]");
 const refreshEntries = document.querySelector("[data-refresh-entries]");
+const exportBackup = document.querySelector("[data-export-backup]");
 const entryList = document.querySelector("[data-entry-admin-list]");
 
 const typeLabels = {
@@ -157,6 +158,50 @@ async function loadEntries() {
   }
 
   entryList.replaceChildren(...data.map(renderEntryRow));
+}
+
+async function exportEntries() {
+  if (!currentUser) return;
+
+  exportBackup.disabled = true;
+  exportBackup.textContent = "正在导出……";
+  note.textContent = "正在整理备份文件。";
+
+  try {
+    const { data, error } = await supabase
+      .from("entries")
+      .select("*")
+      .eq("author_id", currentUser.id)
+      .order("created_at", { ascending: true });
+
+    if (error) throw error;
+
+    const backup = {
+      site: "花之语",
+      exported_at: new Date().toISOString(),
+      owner_email: currentUser.email,
+      entry_count: data?.length || 0,
+      entries: data || [],
+    };
+    const blob = new Blob([JSON.stringify(backup, null, 2)], {
+      type: "application/json;charset=utf-8",
+    });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    const date = new Date().toISOString().slice(0, 10);
+    link.href = url;
+    link.download = `flower-language-backup-${date}.json`;
+    document.body.append(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(url);
+    note.textContent = "备份已经导出到你的电脑。";
+  } catch (error) {
+    note.textContent = `导出没有成功：${error.message}`;
+  } finally {
+    exportBackup.disabled = false;
+    exportBackup.textContent = "导出备份";
+  }
 }
 
 async function createEntryFromForm(formData, previous = null) {
@@ -355,6 +400,7 @@ document.querySelector("[data-preview]").addEventListener("click", () => {
 
 cancelEdit.addEventListener("click", resetEditor);
 refreshEntries.addEventListener("click", loadEntries);
+exportBackup.addEventListener("click", exportEntries);
 
 editor.addEventListener("submit", async (event) => {
   event.preventDefault();
