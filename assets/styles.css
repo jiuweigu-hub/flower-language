@@ -2007,6 +2007,8 @@ body {
 }
 
 .entry-shell {
+  display: flex;
+  justify-content: center;
   width: min(900px, calc(100% - 40px));
   min-height: 65vh;
 }
@@ -2021,6 +2023,19 @@ body {
   width: min(660px, 100%);
   margin: 0 auto;
   padding: 90px 0 130px;
+}
+
+.cloud-entry-thought,
+.cloud-entry-love,
+.cloud-entry-imprint {
+  text-align: center;
+}
+
+.cloud-entry .article-body {
+  width: min(620px, 100%);
+  margin-right: auto;
+  margin-left: auto;
+  text-align: left;
 }
 
 .cloud-entry-header {
@@ -2079,8 +2094,9 @@ body {
 
 .entry-image-gallery {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(220px, min(300px, 100%)));
   gap: 18px;
+  justify-content: center;
   margin: 0 auto 55px;
 }
 
