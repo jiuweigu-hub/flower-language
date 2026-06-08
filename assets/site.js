@@ -161,10 +161,18 @@ if (lightboxTriggers.length || document.querySelector(".media-gallery")) {
     const source = trigger.querySelector("[data-lightbox-image]");
     if (!source) return;
     const caption = trigger.closest(".media-card")?.querySelector(".caption");
-    lightbox.querySelector(".lightbox-image").src = source.src;
-    lightbox.querySelector(".lightbox-image").alt = source.alt;
-    lightbox.querySelector(".lightbox-caption").textContent =
-      caption?.textContent || "";
+    const inner = lightbox.querySelector(".lightbox-inner");
+    const image = lightbox.querySelector(".lightbox-image");
+    image.src = source.src;
+    image.alt = source.alt;
+    lightbox.querySelector(".lightbox-caption").textContent = caption?.textContent || "";
+    image.addEventListener(
+      "load",
+      () => {
+        inner.style.width = `${Math.min(image.clientWidth + 20, window.innerWidth * 0.86)}px`;
+      },
+      { once: true }
+    );
     lightbox.classList.add("is-visible");
     lightbox.setAttribute("aria-hidden", "false");
     document.body.classList.add("lightbox-open");
