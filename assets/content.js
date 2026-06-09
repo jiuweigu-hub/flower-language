@@ -257,7 +257,12 @@ function renderImprintGroups(container, entries, staticEntries) {
   const groups = new Map(order.map((kind) => [kind, []]));
   entries.forEach((entry) => {
     let kind = order.includes(entry.metadata?.kind) ? entry.metadata.kind : "时光";
-    if (kind === "时光" && entry.body?.includes("美食日记")) kind = "美食";
+    if (
+      kind === "时光" &&
+      /(美食|食物|面包|好吃|吃了)/.test(entry.body || "")
+    ) {
+      kind = "美食";
+    }
     const displayEntry =
       kind === entry.metadata?.kind
         ? entry
