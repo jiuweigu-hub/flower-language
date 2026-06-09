@@ -196,8 +196,14 @@ function renderMedia(entry) {
     const figure = element("figure", "photo-frame");
     figure.tabIndex = 0;
     figure.setAttribute("role", "button");
-    figure.setAttribute("aria-label", "放大查看照片");
+    figure.setAttribute(
+      "aria-label",
+      entry.image_urls.length > 1
+        ? `打开全部 ${entry.image_urls.length} 张照片`
+        : "放大查看照片"
+    );
     figure.dataset.lightboxTrigger = "";
+    figure.dataset.lightboxImages = JSON.stringify(entry.image_urls);
     const image = document.createElement("img");
     image.className = "photo-image";
     image.src = imageUrl;
@@ -223,9 +229,6 @@ function renderMedia(entry) {
     article.append(element("p", "caption", entry.body));
   }
 
-  const link = element("a", "read-entry", "打开 →");
-  link.href = detailUrl(entry);
-  article.append(link);
   return article;
 }
 

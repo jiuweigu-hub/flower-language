@@ -2386,6 +2386,11 @@ body {
   transform: scale(1) translateY(0);
 }
 
+.lightbox-gallery {
+  display: grid;
+  gap: 10px;
+}
+
 .lightbox-image {
   display: block;
   width: 100%;

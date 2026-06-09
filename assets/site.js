@@ -145,7 +145,7 @@ if (lightboxTriggers.length || document.querySelector(".media-gallery")) {
   lightbox.innerHTML = `
     <button class="lightbox-close" type="button" aria-label="关闭照片">×</button>
     <div class="lightbox-inner">
-      <img class="lightbox-image" alt="">
+      <div class="lightbox-gallery"></div>
       <p class="lightbox-caption"></p>
     </div>
   `;
@@ -161,10 +161,28 @@ if (lightboxTriggers.length || document.querySelector(".media-gallery")) {
     const source = trigger.querySelector("[data-lightbox-image]");
     if (!source) return;
     const caption = trigger.closest(".media-card")?.querySelector(".caption");
-    const image = lightbox.querySelector(".lightbox-image");
-    lightbox.querySelector(".lightbox-inner").scrollTop = 0;
-    image.src = source.src;
-    image.alt = source.alt;
+    const inner = lightbox.querySelector(".lightbox-inner");
+    const gallery = lightbox.querySelector(".lightbox-gallery");
+    let imageUrls = [source.src];
+    try {
+      const storedUrls = JSON.parse(trigger.dataset.lightboxImages || "[]");
+      if (Array.isArray(storedUrls) && storedUrls.length) imageUrls = storedUrls;
+    } catch {
+      imageUrls = [source.src];
+    }
+    inner.scrollTop = 0;
+    gallery.replaceChildren(
+      ...imageUrls.map((url, index) => {
+        const image = document.createElement("img");
+        image.className = "lightbox-image";
+        image.src = url;
+        image.alt =
+          imageUrls.length > 1
+            ? `${source.alt || "照片"}，第 ${index + 1} 张`
+            : source.alt;
+        return image;
+      })
+    );
     lightbox.querySelector(".lightbox-caption").textContent = caption?.textContent || "";
     lightbox.classList.add("is-visible");
     lightbox.setAttribute("aria-hidden", "false");
