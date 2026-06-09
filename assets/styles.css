@@ -2287,14 +2287,12 @@ body {
 }
 
 .imprint-group {
-  margin-bottom: 68px;
+  margin: 0;
+  padding: 48px 0;
 }
 
-.imprint-group > h2 {
-  margin: 0 0 22px;
-  font-size: 20px;
-  font-weight: 400;
-  letter-spacing: 0.16em;
+.imprint-group + .imprint-group {
+  border-top: 1px dashed rgba(154, 116, 123, 0.22);
 }
 
 .imprint-row {
@@ -2363,6 +2361,7 @@ body {
   word-break: break-word;
   font-size: 12px;
   line-height: 1.8;
+  white-space: pre-line;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 4;
 }
@@ -2750,5 +2749,154 @@ body {
 
   .petal-rain {
     display: none;
+  }
+}
+
+/* Quiet Y2K section signal */
+.page-intro {
+  --signal: rgba(222, 126, 165, 0.5);
+  width: min(560px, 100%);
+  min-height: 0;
+  margin: 46px auto 56px;
+  padding: 30px 34px 28px;
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--signal) 42%, transparent);
+  border-radius: 6px;
+  background:
+    repeating-linear-gradient(
+      0deg,
+      transparent 0 7px,
+      rgba(255, 255, 255, 0.12) 7px 8px
+    ),
+    rgba(255, 255, 255, 0.24);
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.36) inset,
+    0 0 22px color-mix(in srgb, var(--signal) 13%, transparent);
+  backdrop-filter: blur(8px);
+  isolation: isolate;
+  transform: none;
+}
+
+.page-books .page-intro {
+  --signal: rgba(105, 190, 146, 0.58);
+}
+
+.page-thoughts .page-intro {
+  --signal: rgba(105, 166, 218, 0.58);
+}
+
+.page-love .page-intro {
+  --signal: rgba(229, 121, 166, 0.58);
+}
+
+.page-imprints .page-intro {
+  --signal: rgba(224, 158, 86, 0.58);
+}
+
+.page-intro::before {
+  position: absolute;
+  top: 14px;
+  right: 16px;
+  left: auto;
+  width: 6px;
+  height: 6px;
+  border: 1px solid color-mix(in srgb, var(--signal) 80%, white);
+  border-radius: 0;
+  background: var(--signal);
+  box-shadow: 0 0 10px var(--signal);
+  content: "";
+  opacity: 0.8;
+  transform: none;
+  animation: signal-blink 2.8s steps(1, end) infinite;
+}
+
+.page-intro::after {
+  position: absolute;
+  right: 16px;
+  bottom: 12px;
+  width: auto;
+  color: color-mix(in srgb, var(--signal) 70%, var(--ink-soft));
+  content: var(--intro-stamp, "NO. 00");
+  font-family: "Courier New", monospace;
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  writing-mode: initial;
+  opacity: 0.62;
+  transform: none;
+}
+
+.page-intro h1 {
+  position: relative;
+  display: block;
+  margin: 2px 0 9px;
+  padding: 0;
+  font-size: clamp(30px, 5vw, 38px);
+  font-weight: 400;
+  letter-spacing: 0.18em;
+  text-shadow: 0 0 14px color-mix(in srgb, var(--signal) 20%, transparent);
+  transform: none;
+}
+
+.page-intro h1::after {
+  display: none;
+}
+
+.page-intro p {
+  max-width: none;
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.8;
+  transform: none;
+}
+
+.page-intro .eyebrow {
+  display: block;
+  margin: 0 0 8px;
+  padding: 0;
+  border-radius: 0;
+  color: color-mix(in srgb, var(--signal) 72%, var(--ink-soft));
+  background: transparent;
+  box-shadow: none;
+  font-family: "Courier New", monospace;
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  transform: none;
+}
+
+.page-intro .eyebrow::before {
+  display: none;
+}
+
+@keyframes signal-blink {
+  0%,
+  88%,
+  100% {
+    opacity: 0.82;
+  }
+  90%,
+  94% {
+    opacity: 0.14;
+  }
+  92% {
+    opacity: 1;
+  }
+}
+
+@media (max-width: 760px) {
+  .page-intro {
+    margin: 30px auto 38px;
+    padding: 26px 24px 24px;
+    border-radius: 5px;
+  }
+
+  .page-intro h1 {
+    font-size: 29px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .page-intro::before {
+    animation: none;
   }
 }

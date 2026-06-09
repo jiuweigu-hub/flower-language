@@ -280,7 +280,7 @@ function renderImprintGroups(container, entries, staticEntries) {
   container.replaceChildren(
     ...order.map((kind) => {
       const section = element("section", "imprint-group");
-      section.append(element("h2", "", kind));
+      section.dataset.imprintKind = kind;
       const row = element("div", "media-gallery imprint-row");
       const cards = groups.get(kind) || [];
       if (cards.length) row.append(...cards);
