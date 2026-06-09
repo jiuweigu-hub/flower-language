@@ -100,6 +100,17 @@ function detailUrl(entry) {
   return `../entry.html?slug=${encodeURIComponent(entry.slug)}`;
 }
 
+function displayDate(value) {
+  if (!value) return "";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return value;
+  return date.toLocaleDateString("zh-CN", {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  });
+}
+
 function renderBook(entry) {
   const link = element("a", "book-card");
   link.href = detailUrl(entry);
@@ -188,7 +199,16 @@ function renderMedia(entry) {
   const isObject = entry.type === "love";
   const article = element("article", isObject ? "media-card object-card" : "media-card");
   if (!isObject && entry.metadata?.kind) {
-    article.append(element("span", "entry-type", entry.metadata.kind));
+    const meta = element("div", "media-card-meta");
+    meta.append(element("span", "entry-type", entry.metadata.kind));
+    meta.append(
+      element(
+        "span",
+        "entry-date",
+        displayDate(entry.metadata?.date || entry.published_at || entry.created_at)
+      )
+    );
+    article.append(meta);
   }
 
   const imageUrl = entry.image_urls?.[0];
@@ -232,6 +252,40 @@ function renderMedia(entry) {
   return article;
 }
 
+function renderImprintGroups(container, entries, staticEntries) {
+  const order = ["时光", "爱", "美食"];
+  const groups = new Map(order.map((kind) => [kind, []]));
+  entries.forEach((entry) => {
+    let kind = order.includes(entry.metadata?.kind) ? entry.metadata.kind : "时光";
+    if (kind === "时光" && entry.body?.includes("美食日记")) kind = "美食";
+    const displayEntry =
+      kind === entry.metadata?.kind
+        ? entry
+        : { ...entry, metadata: { ...entry.metadata, kind } };
+    groups.get(kind).push(renderMedia(displayEntry));
+  });
+  staticEntries.forEach((entry) => {
+    const kind = entry.querySelector(".entry-type")?.textContent?.trim() || "时光";
+    if (!groups.has(kind)) groups.set(kind, []);
+    groups.get(kind).push(entry);
+  });
+
+  container.classList.remove("media-gallery");
+  container.classList.add("imprint-groups");
+  container.replaceChildren(
+    ...order.map((kind) => {
+      const section = element("section", "imprint-group");
+      section.append(element("h2", "", kind));
+      const row = element("div", "media-gallery imprint-row");
+      const cards = groups.get(kind) || [];
+      if (cards.length) row.append(...cards);
+      else row.append(element("p", "imprint-empty", "这里还没有留下内容。"));
+      section.append(row);
+      return section;
+    })
+  );
+}
+
 async function loadList(container) {
   if (!supabaseConfigured) return;
   const type = container.dataset.entryList;
@@ -259,6 +313,11 @@ async function loadList(container) {
       ...data.map(renderThought),
       ...remainingStaticEntries,
     ]);
+    return;
+  }
+
+  if (type === "imprint") {
+    renderImprintGroups(container, data, remainingStaticEntries);
     return;
   }
 
@@ -384,6 +443,20 @@ async function loadDetail(container) {
 
   if (entry.allow_comments) {
     const comments = element("section", "comments");
+    const approvedList = element("div", "approved-comments");
+    const { data: approvedComments } = await supabase
+      .from("comments")
+      .select("nickname,body,created_at")
+      .eq("entry_id", entry.id)
+      .eq("status", "approved")
+      .order("created_at", { ascending: true });
+    approvedComments?.forEach((comment) => {
+      const item = element("article", "approved-comment");
+      item.append(element("strong", "", comment.nickname));
+      item.append(element("p", "", comment.body));
+      approvedList.append(item);
+    });
+    if (approvedComments?.length) comments.append(approvedList);
     comments.append(element("h2", "", "留下你的话"));
     const form = document.createElement("form");
     form.innerHTML = `

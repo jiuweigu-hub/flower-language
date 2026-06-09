@@ -21,6 +21,8 @@ const cancelEdit = document.querySelector("[data-cancel-edit]");
 const refreshEntries = document.querySelector("[data-refresh-entries]");
 const exportBackup = document.querySelector("[data-export-backup]");
 const entryList = document.querySelector("[data-entry-admin-list]");
+const refreshComments = document.querySelector("[data-refresh-comments]");
+const commentList = document.querySelector("[data-comment-admin-list]");
 
 const typeLabels = {
   book: "书角",
@@ -439,6 +441,97 @@ async function loadEntries() {
   entryList.replaceChildren(...rows);
 }
 
+function commentEntryLabel(entry) {
+  return entry?.title || entry?.body?.slice(0, 24) || "一篇内容";
+}
+
+function renderCommentRow(comment, entriesById) {
+  const row = document.createElement("article");
+  row.className = "entry-admin-row comment-admin-row";
+  const entry = entriesById.get(comment.entry_id);
+  const info = document.createElement("div");
+  const meta = document.createElement("span");
+  meta.className = "entry-admin-meta";
+  meta.textContent = `${comment.status === "pending" ? "待审核" : "已通过"} · ${new Date(
+    comment.created_at
+  ).toLocaleString("zh-CN")} · ${commentEntryLabel(entry)}`;
+  const title = document.createElement("h3");
+  title.textContent = comment.nickname;
+  const body = document.createElement("p");
+  body.textContent = comment.body;
+  info.append(meta, title, body);
+
+  const actions = document.createElement("div");
+  actions.className = "entry-admin-actions";
+  if (comment.status === "pending") {
+    const approve = document.createElement("button");
+    approve.type = "button";
+    approve.textContent = "通过";
+    approve.addEventListener("click", () =>
+      updateCommentStatus(comment.id, "approved")
+    );
+    actions.append(approve);
+  }
+  const remove = document.createElement("button");
+  remove.type = "button";
+  remove.textContent = "删除";
+  remove.dataset.deleteEntry = "";
+  remove.addEventListener("click", () => updateCommentStatus(comment.id, "deleted"));
+  actions.append(remove);
+  row.append(info, actions);
+  return row;
+}
+
+async function loadComments() {
+  if (!currentUser) return;
+  commentList.innerHTML = '<p class="admin-note">正在读取留言……</p>';
+  const { data: entries, error: entryError } = await supabase
+    .from("entries")
+    .select("id,title,body,type")
+    .eq("author_id", currentUser.id);
+  if (entryError) {
+    commentList.innerHTML = `<p class="admin-note">留言读取失败：${entryError.message}</p>`;
+    return;
+  }
+  const entriesById = new Map((entries || []).map((entry) => [entry.id, entry]));
+  const entryIds = [...entriesById.keys()];
+  if (!entryIds.length) {
+    commentList.innerHTML = '<p class="admin-note">目前没有留言。</p>';
+    return;
+  }
+  const { data: comments, error } = await supabase
+    .from("comments")
+    .select("*")
+    .in("entry_id", entryIds)
+    .neq("status", "deleted")
+    .order("created_at", { ascending: false });
+  if (error) {
+    commentList.innerHTML = `<p class="admin-note">留言读取失败：${error.message}</p>`;
+    return;
+  }
+  if (!comments?.length) {
+    commentList.innerHTML =
+      '<p class="admin-note">数据库里暂时没有收到留言。对方如果是在旧版“毕业季”页面提交，那次内容并没有真正保存。</p>';
+    return;
+  }
+  commentList.replaceChildren(
+    ...comments.map((comment) => renderCommentRow(comment, entriesById))
+  );
+}
+
+async function updateCommentStatus(commentId, status) {
+  const { error } = await supabase
+    .from("comments")
+    .update({ status })
+    .eq("id", commentId);
+  if (error) {
+    note.textContent = `留言操作失败：${error.message}`;
+    return;
+  }
+  note.textContent = status === "approved" ? "留言已通过。" : "留言已删除。";
+  await loadComments();
+}
+
 async function exportEntries() {
   if (!currentUser) return;
 
@@ -562,6 +655,7 @@ async function createEntryFromForm(formData, previous = null) {
       metadata: {
         ...previous?.metadata,
         kind: value(formData, "imprint_kind"),
+        date: value(formData, "imprint_date"),
         legacy_key: previous?.metadata?.legacy_key || inferLegacyKey(previous),
       },
       allow_comments: false,
@@ -601,6 +695,7 @@ function startEdit(entry) {
 
   if (entry.type === "imprint") {
     setField("imprint_kind", entry.metadata?.kind || "时光");
+    setField("imprint_date", entry.metadata?.date);
     setField("imprint_body", entry.body);
   }
 
@@ -644,7 +739,7 @@ async function initialize() {
     currentUser = session.user;
     userEmail.textContent = currentUser.email;
     setView("workspace");
-    await loadEntries();
+    await Promise.all([loadEntries(), loadComments()]);
   } else {
     setView("login");
   }
@@ -675,7 +770,7 @@ loginForm.addEventListener("submit", async (event) => {
   userEmail.textContent = currentUser.email;
   loginForm.reset();
   setView("workspace");
-  await loadEntries();
+  await Promise.all([loadEntries(), loadComments()]);
 });
 
 logout.addEventListener("click", async () => {
@@ -691,6 +786,7 @@ document.querySelector("[data-preview]").addEventListener("click", () => {
 
 cancelEdit.addEventListener("click", resetEditor);
 refreshEntries.addEventListener("click", loadEntries);
+refreshComments.addEventListener("click", loadComments);
 exportBackup.addEventListener("click", exportEntries);
 
 editor.addEventListener("submit", async (event) => {

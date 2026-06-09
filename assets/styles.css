@@ -873,6 +873,14 @@ textarea {
   color: #9b5461;
 }
 
+.comment-manager {
+  margin-bottom: 80px;
+}
+
+.comment-admin-row p {
+  -webkit-line-clamp: 4;
+}
+
 .admin-setup,
 .login-card {
   width: min(620px, 100%);
@@ -1235,6 +1243,29 @@ textarea {
 .comments h2 {
   font-size: 23px;
   font-weight: 400;
+}
+
+.approved-comments {
+  display: grid;
+  gap: 14px;
+  margin-bottom: 48px;
+}
+
+.approved-comment {
+  padding: 18px 20px;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.34);
+}
+
+.approved-comment strong {
+  font-weight: 400;
+}
+
+.approved-comment p {
+  margin: 5px 0 0;
+  color: var(--ink-soft);
+  font-size: 14px;
 }
 
 .field {
@@ -2249,8 +2280,53 @@ body {
   padding: 72px 0 130px;
 }
 
+.imprint-groups {
+  width: min(900px, 100%);
+  margin: 0 auto;
+  padding: 52px 0 130px;
+}
+
+.imprint-group {
+  margin-bottom: 68px;
+}
+
+.imprint-group > h2 {
+  margin: 0 0 22px;
+  font-size: 20px;
+  font-weight: 400;
+  letter-spacing: 0.16em;
+}
+
+.imprint-row {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  width: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+.imprint-empty {
+  grid-column: 1 / -1;
+  margin: 0;
+  color: var(--ink-soft);
+  font-size: 12px;
+}
+
 .media-card {
   min-width: 0;
+}
+
+.media-card-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.entry-date {
+  color: var(--ink-soft);
+  font-family: var(--sans);
+  font-size: 10px;
+  letter-spacing: 0.04em;
 }
 
 .media-card .entry-type,
@@ -2624,6 +2700,11 @@ body {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 38px 18px;
     padding: 55px 0 100px;
+  }
+
+  .imprint-row {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    padding: 0;
   }
 
   .media-card .caption {

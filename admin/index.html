@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="robots" content="noindex">
     <title>内容管理 · 花之语</title>
-    <link rel="stylesheet" href="../assets/styles.css?v=soft-format-1">
+    <link rel="stylesheet" href="../assets/styles.css?v=imprint-groups-comments-1">
   </head>
   <body class="admin-page">
     <header class="site-header shell">
@@ -98,8 +98,10 @@
               <select name="imprint_kind">
                 <option>时光</option>
                 <option>爱</option>
+                <option>美食</option>
               </select>
             </label>
+            <label class="field">日期<input name="imprint_date" type="date"></label>
             <label class="field">照片<input name="imprint_images" type="file" accept="image/*" multiple></label>
             <label class="field">几句话<textarea name="imprint_body" rows="8" data-count-text></textarea></label>
           </div>
@@ -130,9 +132,22 @@
           <p class="admin-note">登录后会显示你已经发布的内容。</p>
         </div>
       </section>
+      <section class="entry-manager comment-manager" aria-label="留言箱">
+        <div class="entry-manager-head">
+          <div>
+            <p class="eyebrow">Visitor notes</p>
+            <h2>留言箱</h2>
+          </div>
+          <button class="preview-button" type="button" data-refresh-comments>刷新留言</button>
+        </div>
+        <p class="publish-hint">新留言先进入这里。点击“通过”后，才会显示在文章下面。</p>
+        <div class="entry-list-admin" data-comment-admin-list>
+          <p class="admin-note">登录后会读取访客留言。</p>
+        </div>
+      </section>
       </div>
     </main>
     <script src="../assets/site.js?v=home-bloom-3"></script>
-    <script type="module" src="../assets/admin.js?v=legacy-dedupe-1"></script>
+    <script type="module" src="../assets/admin.js?v=imprint-groups-comments-1"></script>
   </body>
 </html>
