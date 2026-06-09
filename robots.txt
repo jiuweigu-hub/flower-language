@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+Disallow: /flower-language/admin/
+
+Sitemap: https://jiuweigu-hub.github.io/flower-language/sitemap.xml
