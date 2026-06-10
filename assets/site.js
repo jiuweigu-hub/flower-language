@@ -11,6 +11,15 @@ document.querySelectorAll("[data-flower]").forEach((button) => {
   });
 });
 
+// If the cloud script cannot start, reveal the local fallback instead of
+// leaving visitors with a permanent loading state.
+window.setTimeout(() => {
+  document.querySelectorAll("[data-entry-list].is-entry-loading").forEach((list) => {
+    list.classList.remove("is-entry-loading");
+    list.removeAttribute("aria-busy");
+  });
+}, 8000);
+
 document.querySelectorAll("[data-comment-form]").forEach((form) => {
   form.addEventListener("submit", (event) => {
     event.preventDefault();

@@ -212,7 +212,7 @@ textarea {
   z-index: 2;
   display: inline-flex;
   gap: clamp(8px, 1.5vw, 18px);
-  align-items: center;
+  align-items: flex-start;
   padding-left: 0.08em;
   color: rgba(105, 87, 94, 0.72);
 }
@@ -227,12 +227,16 @@ textarea {
     transform 1000ms cubic-bezier(.2,.7,.2,1);
 }
 
+.bloom-word:nth-child(1) {
+  transform: translateY(-0.12em);
+}
+
 .bloom-word:nth-child(2) {
-  transform: translateY(0.04em);
+  transform: translateY(0.03em);
 }
 
 .bloom-word:nth-child(3) {
-  transform: translateY(-0.03em);
+  transform: translateY(0.18em);
 }
 
 .bloom-flower-word {
@@ -308,17 +312,74 @@ textarea {
 .bloom-title.is-wind .bloom-flower-word {
   filter: blur(0.12px);
   opacity: 0.78;
-  transform: translateX(-0.03em) rotate(-1.6deg);
+  transform: translate(-0.03em, -0.12em) rotate(-1.6deg);
 }
 
 .bloom-title:hover .bloom-word:nth-child(2),
 .bloom-title.is-wind .bloom-word:nth-child(2) {
-  transform: translate(0.08em, 0.02em);
+  transform: translate(0.08em, 0.05em);
 }
 
 .bloom-title:hover .bloom-word:nth-child(3),
 .bloom-title.is-wind .bloom-word:nth-child(3) {
-  transform: translate(0.16em, -0.04em);
+  transform: translate(0.16em, 0.14em);
+}
+
+[data-entry-list].is-entry-loading {
+  position: relative;
+  min-height: 260px;
+}
+
+[data-entry-list].is-entry-loading > * {
+  visibility: hidden;
+}
+
+[data-entry-list].is-entry-loading::before,
+[data-entry-list].is-entry-loading::after {
+  position: absolute;
+  left: 50%;
+  border-radius: 999px;
+  content: "";
+  transform: translateX(-50%);
+}
+
+[data-entry-list].is-entry-loading::before {
+  top: 72px;
+  width: min(360px, 68%);
+  height: 9px;
+  background: rgba(196, 144, 157, 0.12);
+  box-shadow:
+    0 28px 0 rgba(196, 144, 157, 0.08),
+    0 56px 0 rgba(196, 144, 157, 0.055);
+}
+
+[data-entry-list].is-entry-loading::after {
+  top: 68px;
+  width: 82px;
+  height: 17px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.72),
+    transparent
+  );
+  animation: content-soft-load 1500ms ease-in-out infinite;
+}
+
+@keyframes content-soft-load {
+  0% {
+    opacity: 0;
+    transform: translateX(-180px);
+  }
+
+  45% {
+    opacity: 0.9;
+  }
+
+  100% {
+    opacity: 0;
+    transform: translateX(100px);
+  }
 }
 
 .bloom-title:hover .title-flower,

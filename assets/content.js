@@ -1,4 +1,27 @@
-import { supabase, supabaseConfigured } from "./supabase-client.js";
+import {
+  SUPABASE_PUBLISHABLE_KEY,
+  SUPABASE_URL,
+  supabaseConfigured,
+} from "./supabase-config.js";
+
+const restHeaders = {
+  apikey: SUPABASE_PUBLISHABLE_KEY,
+  Authorization: `Bearer ${SUPABASE_PUBLISHABLE_KEY}`,
+};
+
+async function restRequest(path, options = {}) {
+  const response = await fetch(`${SUPABASE_URL}/rest/v1/${path}`, {
+    ...options,
+    headers: {
+      ...restHeaders,
+      ...(options.body ? { "Content-Type": "application/json" } : {}),
+      ...options.headers,
+    },
+  });
+  if (!response.ok) throw new Error(`Content request failed: ${response.status}`);
+  if (response.status === 204) return null;
+  return response.json();
+}
 
 const typeLabels = {
   book: "书角",
@@ -292,45 +315,50 @@ function renderImprintGroups(container, entries, staticEntries) {
 }
 
 async function loadList(container) {
-  if (!supabaseConfigured) return;
-  const type = container.dataset.entryList;
-  const staticEntries =
-    ["thought", "love", "imprint"].includes(type)
-      ? [...container.querySelectorAll("[data-static-entry]")].map((entry) =>
-          entry.cloneNode(true)
-        )
-      : [];
-  const { data, error } = await supabase
-    .from("entries")
-    .select("*")
-    .eq("type", type)
-    .eq("status", "public")
-    .order("published_at", { ascending: false });
+  try {
+    if (!supabaseConfigured) return;
+    const type = container.dataset.entryList;
+    const staticEntries =
+      ["thought", "love", "imprint"].includes(type)
+        ? [...container.querySelectorAll("[data-static-entry]")].map((entry) =>
+            entry.cloneNode(true)
+          )
+        : [];
+    const query = new URLSearchParams({
+      select: "*",
+      type: `eq.${type}`,
+      status: "eq.public",
+      order: "published_at.desc",
+    });
+    const data = await restRequest(`entries?${query}`);
+    if (!data?.length) return;
+    const cloudKeys = new Set(data.flatMap((entry) => [...entryKeys(entry)]));
+    const remainingStaticEntries = staticEntries.filter(
+      (entry) => ![...staticEntryKeys(entry, type)].some((key) => cloudKeys.has(key))
+    );
 
-  if (error || !data?.length) return;
-  const cloudKeys = new Set(data.flatMap((entry) => [...entryKeys(entry)]));
-  const remainingStaticEntries = staticEntries.filter(
-    (entry) => ![...staticEntryKeys(entry, type)].some((key) => cloudKeys.has(key))
-  );
+    if (type === "thought") {
+      paginateThoughts(container, [
+        ...data.map(renderThought),
+        ...remainingStaticEntries,
+      ]);
+      return;
+    }
 
-  if (type === "thought") {
-    paginateThoughts(container, [
-      ...data.map(renderThought),
-      ...remainingStaticEntries,
-    ]);
-    return;
+    if (type === "imprint") {
+      renderImprintGroups(container, data, remainingStaticEntries);
+      return;
+    }
+
+    container.replaceChildren();
+    data.forEach((entry) => {
+      container.append(type === "book" ? renderBook(entry) : renderMedia(entry));
+    });
+    remainingStaticEntries.forEach((entry) => container.append(entry));
+  } finally {
+    container.classList.remove("is-entry-loading");
+    container.removeAttribute("aria-busy");
   }
-
-  if (type === "imprint") {
-    renderImprintGroups(container, data, remainingStaticEntries);
-    return;
-  }
-
-  container.replaceChildren();
-  data.forEach((entry) => {
-    container.append(type === "book" ? renderBook(entry) : renderMedia(entry));
-  });
-  remainingStaticEntries.forEach((entry) => container.append(entry));
 }
 
 function renderImages(entry, wrapper) {
@@ -364,14 +392,20 @@ async function loadDetail(container) {
   }
 
   const slug = new URLSearchParams(location.search).get("slug");
-  const { data: entry, error } = await supabase
-    .from("entries")
-    .select("*")
-    .eq("slug", slug)
-    .eq("status", "public")
-    .single();
+  let entry;
+  try {
+    const query = new URLSearchParams({
+      select: "*",
+      slug: `eq.${slug}`,
+      status: "eq.public",
+      limit: "1",
+    });
+    [entry] = await restRequest(`entries?${query}`);
+  } catch {
+    entry = null;
+  }
 
-  if (error || !entry) {
+  if (!entry) {
     container.replaceChildren(
       element("p", "entry-loading", "没有找到这份内容，或它暂时没有公开。")
     );
@@ -438,9 +472,12 @@ async function loadDetail(container) {
   flower.append(count);
   flower.addEventListener("click", async () => {
     flower.disabled = true;
-    const { data } = await supabase.rpc("send_flower", {
-      target_entry: entry.id,
-      visitor: visitorKey(),
+    const data = await restRequest("rpc/send_flower", {
+      method: "POST",
+      body: JSON.stringify({
+        target_entry: entry.id,
+        visitor: visitorKey(),
+      }),
     });
     count.textContent = String(data ?? entry.flower_count);
   });
@@ -449,12 +486,13 @@ async function loadDetail(container) {
   if (entry.allow_comments) {
     const comments = element("section", "comments");
     const approvedList = element("div", "approved-comments");
-    const { data: approvedComments } = await supabase
-      .from("comments")
-      .select("nickname,body,created_at")
-      .eq("entry_id", entry.id)
-      .eq("status", "approved")
-      .order("created_at", { ascending: true });
+    const commentQuery = new URLSearchParams({
+      select: "nickname,body,created_at",
+      entry_id: `eq.${entry.id}`,
+      status: "eq.approved",
+      order: "created_at.asc",
+    });
+    const approvedComments = await restRequest(`comments?${commentQuery}`);
     approvedComments?.forEach((comment) => {
       const item = element("article", "approved-comment");
       item.append(element("strong", "", comment.nickname));
@@ -473,13 +511,22 @@ async function loadDetail(container) {
     form.addEventListener("submit", async (event) => {
       event.preventDefault();
       const formData = new FormData(form);
-      const { error: commentError } = await supabase.from("comments").insert({
-        entry_id: entry.id,
-        nickname: String(formData.get("nickname")).trim(),
-        body: String(formData.get("body")).trim(),
-      });
+      let commentError = null;
+      try {
+        await restRequest("comments", {
+          method: "POST",
+          headers: { Prefer: "return=minimal" },
+          body: JSON.stringify({
+            entry_id: entry.id,
+            nickname: String(formData.get("nickname")).trim(),
+            body: String(formData.get("body")).trim(),
+          }),
+        });
+      } catch (error) {
+        commentError = error;
+      }
       form.querySelector(".form-note").textContent = commentError
-        ? `提交没有成功：${commentError.message}`
+        ? "提交没有成功，请稍后再试。"
         : "谢谢你。审核通过后，这句话会出现在这里。";
       if (!commentError) form.reset();
     });
