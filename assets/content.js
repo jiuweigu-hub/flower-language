@@ -79,46 +79,6 @@ function renderFormattedBody(value) {
   return fragment;
 }
 
-function fileNameFromUrl(url) {
-  try {
-    return new URL(url, location.href).pathname.split("/").pop() || "";
-  } catch {
-    return "";
-  }
-}
-
-function entryKeys(entry) {
-  const keys = new Set();
-  const legacyKey = entry.metadata?.legacy_key;
-  if (legacyKey) keys.add(`${entry.type}:legacy:${legacyKey}`);
-  if (entry.type === "imprint") {
-    keys.add(`${entry.type}:body:${entry.body || ""}`);
-  } else {
-    keys.add(`${entry.type}:title:${entry.title || ""}`);
-  }
-  entry.image_urls?.forEach((url) => {
-    const fileName = fileNameFromUrl(url);
-    if (fileName) keys.add(`${entry.type}:image:${fileName}`);
-  });
-  return keys;
-}
-
-function staticEntryKeys(node, type) {
-  const keys = new Set();
-  if (type === "imprint") {
-    const caption = node.querySelector(".caption")?.textContent?.trim() || "";
-    keys.add(`${type}:body:${caption}`);
-  } else {
-    const title = node.querySelector("h2")?.textContent?.trim() || "";
-    keys.add(`${type}:title:${title}`);
-  }
-  node.querySelectorAll("img").forEach((image) => {
-    const fileName = fileNameFromUrl(image.getAttribute("src"));
-    if (fileName) keys.add(`${type}:image:${fileName}`);
-  });
-  return keys;
-}
-
 function detailUrl(entry) {
   return `../entry.html?slug=${encodeURIComponent(entry.slug)}`;
 }
@@ -275,7 +235,7 @@ function renderMedia(entry) {
   return article;
 }
 
-function renderImprintGroups(container, entries, staticEntries) {
+function renderImprintGroups(container, entries) {
   const order = ["时光", "爱", "美食"];
   const groups = new Map(order.map((kind) => [kind, []]));
   entries.forEach((entry) => {
@@ -292,12 +252,6 @@ function renderImprintGroups(container, entries, staticEntries) {
         : { ...entry, metadata: { ...entry.metadata, kind } };
     groups.get(kind).push(renderMedia(displayEntry));
   });
-  staticEntries.forEach((entry) => {
-    const kind = entry.querySelector(".entry-type")?.textContent?.trim() || "时光";
-    if (!groups.has(kind)) groups.set(kind, []);
-    groups.get(kind).push(entry);
-  });
-
   container.classList.remove("media-gallery");
   container.classList.add("imprint-groups");
   container.replaceChildren(
@@ -315,15 +269,9 @@ function renderImprintGroups(container, entries, staticEntries) {
 }
 
 async function loadList(container) {
+  const type = container.dataset.entryList;
   try {
-    if (!supabaseConfigured) return;
-    const type = container.dataset.entryList;
-    const staticEntries =
-      ["thought", "love", "imprint"].includes(type)
-        ? [...container.querySelectorAll("[data-static-entry]")].map((entry) =>
-            entry.cloneNode(true)
-          )
-        : [];
+    if (!supabaseConfigured) throw new Error("Content service is not configured");
     const query = new URLSearchParams({
       select: "*",
       type: `eq.${type}`,
@@ -331,22 +279,18 @@ async function loadList(container) {
       order: "published_at.desc",
     });
     const data = await restRequest(`entries?${query}`);
-    if (!data?.length) return;
-    const cloudKeys = new Set(data.flatMap((entry) => [...entryKeys(entry)]));
-    const remainingStaticEntries = staticEntries.filter(
-      (entry) => ![...staticEntryKeys(entry, type)].some((key) => cloudKeys.has(key))
-    );
+    if (!data?.length) {
+      container.replaceChildren(element("p", "entry-loading", "这里还没有内容。"));
+      return;
+    }
 
     if (type === "thought") {
-      paginateThoughts(container, [
-        ...data.map(renderThought),
-        ...remainingStaticEntries,
-      ]);
+      paginateThoughts(container, data.map(renderThought));
       return;
     }
 
     if (type === "imprint") {
-      renderImprintGroups(container, data, remainingStaticEntries);
+      renderImprintGroups(container, data);
       return;
     }
 
@@ -354,7 +298,10 @@ async function loadList(container) {
     data.forEach((entry) => {
       container.append(type === "book" ? renderBook(entry) : renderMedia(entry));
     });
-    remainingStaticEntries.forEach((entry) => container.append(entry));
+  } catch {
+    container.replaceChildren(
+      element("p", "entry-loading", "内容暂时未能打开，请稍后再来看看。")
+    );
   } finally {
     container.classList.remove("is-entry-loading");
     container.removeAttribute("aria-busy");
