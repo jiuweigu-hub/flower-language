@@ -287,26 +287,57 @@ textarea {
 
 .wind-petals {
   position: absolute;
-  inset: -0.1em -0.55em -0.12em 0.25em;
+  inset: -0.28em -2em -0.28em -0.18em;
+  overflow: visible;
   pointer-events: none;
+}
+
+.wind-petals b {
+  position: absolute;
+  top: 30%;
+  left: 2%;
+  width: 1.45em;
+  height: 1px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, transparent, rgba(201, 135, 153, 0.28), transparent);
+  opacity: 0;
+  transform: translateX(-0.18em) scaleX(0.18);
+  transform-origin: left center;
+}
+
+.wind-petals b:nth-child(2) {
+  top: 48%;
+  left: 12%;
+  width: 1.8em;
+}
+
+.wind-petals b:nth-child(3) {
+  top: 66%;
+  left: -3%;
+  width: 1.2em;
 }
 
 .wind-petals i {
   position: absolute;
   top: 36%;
-  left: 28%;
-  width: 0.09em;
-  height: 0.045em;
+  left: 18%;
+  width: 0.105em;
+  height: 0.052em;
   border-radius: 999px 999px 999px 30%;
-  background: rgba(226, 162, 176, 0.56);
+  background: rgba(218, 137, 158, 0.72);
   opacity: 0;
   transform: translate3d(0, 0, 0) rotate(12deg);
 }
 
-.wind-petals i:nth-child(2) { top: 18%; left: 42%; background: rgba(246, 204, 211, 0.7); }
-.wind-petals i:nth-child(3) { top: 56%; left: 52%; background: rgba(219, 186, 207, 0.55); }
-.wind-petals i:nth-child(4) { top: 30%; left: 58%; background: rgba(236, 181, 168, 0.58); }
-.wind-petals i:nth-child(5) { top: 68%; left: 36%; background: rgba(240, 190, 201, 0.6); }
+.wind-petals i:nth-of-type(2) { top: 18%; left: 25%; background: rgba(239, 181, 195, 0.78); }
+.wind-petals i:nth-of-type(3) { top: 58%; left: 31%; }
+.wind-petals i:nth-of-type(4) { top: 30%; left: 38%; width: 0.08em; }
+.wind-petals i:nth-of-type(5) { top: 72%; left: 21%; background: rgba(228, 163, 180, 0.72); }
+.wind-petals i:nth-of-type(6) { top: 8%; left: 12%; width: 0.075em; }
+.wind-petals i:nth-of-type(7) { top: 46%; left: 8%; background: rgba(242, 199, 208, 0.8); }
+.wind-petals i:nth-of-type(8) { top: 78%; left: 40%; width: 0.085em; }
+.wind-petals i:nth-of-type(9) { top: 25%; left: 3%; background: rgba(225, 151, 170, 0.74); }
+.wind-petals i:nth-of-type(10) { top: 62%; left: 14%; width: 0.07em; }
 
 .bloom-title:hover .bloom-flower-word,
 .bloom-title.is-wind .bloom-flower-word {
@@ -388,29 +419,59 @@ textarea {
   transform: translate(0.18em, -0.08em) rotate(9deg) scale(1);
 }
 
+.bloom-title:hover .wind-petals b,
+.bloom-title.is-wind .wind-petals b {
+  animation: title-wind-line 1050ms ease-out forwards;
+}
+
+.bloom-title:hover .wind-petals b:nth-child(2),
+.bloom-title.is-wind .wind-petals b:nth-child(2) {
+  animation-delay: 80ms;
+}
+
+.bloom-title:hover .wind-petals b:nth-child(3),
+.bloom-title.is-wind .wind-petals b:nth-child(3) {
+  animation-delay: 155ms;
+}
+
 .bloom-title:hover .wind-petals i,
 .bloom-title.is-wind .wind-petals i {
-  animation: title-petal-wind 1300ms ease-out forwards;
+  animation: title-petal-wind 1450ms cubic-bezier(.18,.58,.26,1) forwards;
 }
 
-.bloom-title:hover .wind-petals i:nth-child(2),
-.bloom-title.is-wind .wind-petals i:nth-child(2) {
-  animation-delay: 90ms;
-}
+.bloom-title:hover .wind-petals i:nth-of-type(2),
+.bloom-title.is-wind .wind-petals i:nth-of-type(2) { animation-delay: 65ms; }
+.bloom-title:hover .wind-petals i:nth-of-type(3),
+.bloom-title.is-wind .wind-petals i:nth-of-type(3) { animation-delay: 125ms; }
+.bloom-title:hover .wind-petals i:nth-of-type(4),
+.bloom-title.is-wind .wind-petals i:nth-of-type(4) { animation-delay: 185ms; }
+.bloom-title:hover .wind-petals i:nth-of-type(5),
+.bloom-title.is-wind .wind-petals i:nth-of-type(5) { animation-delay: 245ms; }
+.bloom-title:hover .wind-petals i:nth-of-type(6),
+.bloom-title.is-wind .wind-petals i:nth-of-type(6) { animation-delay: 100ms; }
+.bloom-title:hover .wind-petals i:nth-of-type(7),
+.bloom-title.is-wind .wind-petals i:nth-of-type(7) { animation-delay: 205ms; }
+.bloom-title:hover .wind-petals i:nth-of-type(8),
+.bloom-title.is-wind .wind-petals i:nth-of-type(8) { animation-delay: 315ms; }
+.bloom-title:hover .wind-petals i:nth-of-type(9),
+.bloom-title.is-wind .wind-petals i:nth-of-type(9) { animation-delay: 270ms; }
+.bloom-title:hover .wind-petals i:nth-of-type(10),
+.bloom-title.is-wind .wind-petals i:nth-of-type(10) { animation-delay: 365ms; }
 
-.bloom-title:hover .wind-petals i:nth-child(3),
-.bloom-title.is-wind .wind-petals i:nth-child(3) {
-  animation-delay: 170ms;
-}
+@keyframes title-wind-line {
+  0% {
+    opacity: 0;
+    transform: translateX(-0.18em) scaleX(0.18);
+  }
 
-.bloom-title:hover .wind-petals i:nth-child(4),
-.bloom-title.is-wind .wind-petals i:nth-child(4) {
-  animation-delay: 230ms;
-}
+  24% {
+    opacity: 0.5;
+  }
 
-.bloom-title:hover .wind-petals i:nth-child(5),
-.bloom-title.is-wind .wind-petals i:nth-child(5) {
-  animation-delay: 310ms;
+  100% {
+    opacity: 0;
+    transform: translateX(0.72em) scaleX(1);
+  }
 }
 
 @keyframes title-petal-wind {
@@ -420,12 +481,12 @@ textarea {
   }
 
   18% {
-    opacity: 0.72;
+    opacity: 0.88;
   }
 
   100% {
     opacity: 0;
-    transform: translate3d(0.68em, -0.18em, 0) rotate(96deg);
+    transform: translate3d(1.72em, -0.42em, 0) rotate(190deg);
   }
 }
 
@@ -2599,7 +2660,7 @@ body {
   opacity: 0;
   transform: rotate(24deg);
   filter: blur(0.08px);
-  animation: petal-fall var(--petal-fall) cubic-bezier(.3,.02,.55,1) var(--petal-delay) forwards;
+  animation: petal-fall var(--petal-fall) linear var(--petal-delay) forwards;
 }
 
 @keyframes petal-fall {
@@ -2612,12 +2673,17 @@ body {
     opacity: 0.78;
   }
 
-  45% {
+  35% {
     opacity: 0.72;
-    transform: translate3d(calc(var(--petal-drift) * -0.25), 46vh, 0) rotate(calc(var(--petal-turn) * 0.42));
+    transform: translate3d(calc(var(--petal-drift) * -0.28), 35vh, 0) rotate(calc(var(--petal-turn) * 0.34));
   }
 
-  92% {
+  70% {
+    opacity: 0.7;
+    transform: translate3d(calc(var(--petal-drift) * 0.32), 70vh, 0) rotate(calc(var(--petal-turn) * 0.7));
+  }
+
+  94% {
     opacity: 0.62;
   }
 
