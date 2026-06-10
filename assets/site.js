@@ -92,32 +92,45 @@ function startPetalRain() {
   document.body.append(rain);
 
   const startTime = performance.now();
-  const duration = 5000;
+  const spawnDuration = 4600;
+  const maxFallDuration = 6200;
+
+  function createPetal(delay = Math.random() * 0.28) {
+    const petal = document.createElement("span");
+    petal.className = "falling-petal";
+    petal.style.setProperty("--petal-left", `${Math.random() * 100}vw`);
+    petal.style.setProperty("--petal-size", `${7 + Math.random() * 7}px`);
+    petal.style.setProperty(
+      "--petal-color",
+      petalColors[Math.floor(Math.random() * petalColors.length)]
+    );
+    petal.style.setProperty("--petal-drift", `${-70 + Math.random() * 140}px`);
+    petal.style.setProperty("--petal-turn", `${180 + Math.random() * 360}deg`);
+    petal.style.setProperty("--petal-delay", `${delay}s`);
+    petal.style.setProperty("--petal-fall", `${4.8 + Math.random() * 1.4}s`);
+    rain.append(petal);
+  }
+
+  for (let index = 0; index < 12; index += 1) {
+    createPetal(index * 0.045);
+  }
+
   const interval = window.setInterval(() => {
     const elapsed = performance.now() - startTime;
-    if (elapsed >= 4200) {
+    if (elapsed >= spawnDuration) {
       window.clearInterval(interval);
       return;
     }
 
-    const petal = document.createElement("span");
-    petal.className = "falling-petal";
-    petal.style.setProperty("--petal-left", `${Math.random() * 100}vw`);
-    petal.style.setProperty("--petal-size", `${5 + Math.random() * 5}px`);
-    petal.style.setProperty("--petal-color", petalColors[Math.floor(Math.random() * petalColors.length)]);
-    petal.style.setProperty("--petal-drift", `${-42 + Math.random() * 84}px`);
-    petal.style.setProperty("--petal-turn", `${120 + Math.random() * 260}deg`);
-    petal.style.setProperty("--petal-delay", `${Math.random() * 0.42}s`);
-    petal.style.setProperty("--petal-fall", `${4.4 + Math.random() * 1.4}s`);
-    rain.append(petal);
-  }, 150);
+    createPetal();
+  }, 82);
 
   window.setTimeout(() => {
     window.clearInterval(interval);
     rain.remove();
     document.body.classList.remove("petal-rain-active");
     petalRainActive = false;
-  }, duration);
+  }, spawnDuration + maxFallDuration);
 }
 
 brandMarks.forEach((brand) => {

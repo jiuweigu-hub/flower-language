@@ -2594,11 +2594,11 @@ body {
   border-radius: 76% 24% 72% 28%;
   background: var(--petal-color);
   box-shadow:
-    0 0 14px rgba(242, 184, 196, 0.22),
+    0 3px 15px rgba(210, 139, 158, 0.28),
     inset 1px 1px 0 rgba(255, 255, 255, 0.55);
   opacity: 0;
   transform: rotate(24deg);
-  filter: blur(0.15px);
+  filter: blur(0.08px);
   animation: petal-fall var(--petal-fall) cubic-bezier(.3,.02,.55,1) var(--petal-delay) forwards;
 }
 
@@ -2609,16 +2609,21 @@ body {
   }
 
   10% {
-    opacity: 0.46;
+    opacity: 0.78;
   }
 
   45% {
-    transform: translate3d(calc(var(--petal-drift) * -0.25), 42vh, 0) rotate(calc(var(--petal-turn) * 0.42));
+    opacity: 0.72;
+    transform: translate3d(calc(var(--petal-drift) * -0.25), 46vh, 0) rotate(calc(var(--petal-turn) * 0.42));
+  }
+
+  92% {
+    opacity: 0.62;
   }
 
   100% {
     opacity: 0;
-    transform: translate3d(var(--petal-drift), 108vh, 0) rotate(var(--petal-turn));
+    transform: translate3d(var(--petal-drift), calc(100vh + 42px), 0) rotate(var(--petal-turn));
   }
 }
 
