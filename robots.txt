@@ -3,3 +3,4 @@ Allow: /
 Disallow: /flower-language/admin/
 
 Sitemap: https://jiuweigu-hub.github.io/flower-language/sitemap.xml
+Sitemap: https://jiuweigu-hub.github.io/flower-language/sitemap.txt
