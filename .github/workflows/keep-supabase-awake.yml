@@ -1,0 +1,22 @@
+name: Keep Supabase Awake
+
+on:
+  schedule:
+    - cron: "18 2 */3 * *"
+  workflow_dispatch:
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Touch public content API
+        env:
+          SUPABASE_URL: "https://aogksmdigxiosuldhict.supabase.co"
+          SUPABASE_PUBLISHABLE_KEY: "sb_publishable_D0asVI1iZPhI2Rn3OimCoA_XxxCHXWF"
+        run: |
+          curl --fail --silent --show-error \
+            --get "$SUPABASE_URL/rest/v1/entries" \
+            --header "apikey: $SUPABASE_PUBLISHABLE_KEY" \
+            --header "Authorization: Bearer $SUPABASE_PUBLISHABLE_KEY" \
+            --data-urlencode "select=id" \
+            --data-urlencode "limit=1"
